@@ -1,16 +1,23 @@
-import { useAuth } from "@clerk/clerk-react";
 import { SERVER_URL } from "../constants";
 import z from "zod";
 
 type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE";
 
-interface RequestOptions {
+type RequestOptions = {
   endpoint: string;
   method: HTTPMethod;
-  token?: string;
-  body?: string;
+  body?: any;
   schema?: z.ZodType<any>;
-}
+} & (AuthenticatedOptions | UnathenticatedOptions);
+
+type AuthenticatedOptions = {
+  token: string;
+};
+
+type UnathenticatedOptions = {
+  authenticated: false;
+  token?: false;
+};
 
 export const makeRequest = async <T>({
   endpoint,
@@ -23,7 +30,11 @@ export const makeRequest = async <T>({
 
     const headers: HeadersInit = {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      ...(token
+        ? {
+            Authorization: `Bearer ${token}`,
+          }
+        : {}),
     };
 
     const options: RequestInit = {
@@ -40,16 +51,4 @@ export const makeRequest = async <T>({
     console.error("Request error:", error);
     throw error;
   }
-};
-
-/** Creating a custom hook */
-export const useRequest = () => {
-  // we're using the clerk hook to grab the token
-  const { getToken } = useAuth();
-
-  // we are wrapping the makeRequest function and passing in a token
-  const makeRequestWithToken = async <T>(args: Omit<RequestOptions, "token">) =>
-    makeRequest<T>({ ...args, token: (await getToken()) || undefined });
-
-  return { makeRequest: makeRequestWithToken };
 };

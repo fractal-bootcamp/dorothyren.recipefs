@@ -37,13 +37,23 @@ export async function fetchRecipeList(): Promise<RecipeList> {
   }
 }
 
-console.log(await fetchRecipeList());
-
-//some function to create a new Recipe
+/**function that hits the /createrecipe/:id endpoint */
 export async function createNewRecipe(
   name: string,
   description: string,
-  userId: string
+  token: string
 ): Promise<Recipe> {
-  //write funciton that creates a new recipe with the prior inputs
+  const newRecipe = await makeRequest<Recipe>({
+    endpoint: "/createrecipe",
+    method: "POST",
+    body: {
+      name: name,
+      description: description,
+    },
+    token,
+  });
+  if (!newRecipe) {
+    throw new Error("Failed to create new recipe");
+  }
+  return newRecipe;
 }

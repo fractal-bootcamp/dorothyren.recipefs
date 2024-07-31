@@ -63,37 +63,38 @@ app.post("/createuser", async (req, res) => {
   }
 });
 
-// app.post(
-//   "/createrecipe/:id",
-//   ClerkExpressRequireAuth(),
-//   optionalUser,
-//   async (req, res) => {
-//     const { id } = req.params;
-//     const { name, description } = req.body;
+//POST route to create a new recipe
+app.post(
+  "/createrecipe",
+  ClerkExpressRequireAuth(),
+  optionalUser,
+  async (req, res) => {
+    const { id } = req.params;
+    const { name, description } = req.body;
 
-//     try {
-//       // Check if the user is authenticated
-//       if (!req.user) {
-//         return res.status(401).send("Unauthorized");
-//       }
+    try {
+      // Check if the user is authenticated
+      if (!req.user) {
+        return res.status(401).send("Unauthorized");
+      }
 
-//       // Create a new recipe
-//       const newRecipe = await prisma.recipe.create({
-//         data: {
-//           name,
-//           description,
-//           userId: id,
-//           createdAt: new Date(),
-//           updatedAt: new Date(),
-//         },
-//       });
+      // Create a new recipe
+      const newRecipe = await prisma.recipe.create({
+        data: {
+          name,
+          description,
+          userId: req.user.id,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
 
-//       res.status(201).json(newRecipe);
-//     } catch (error) {
-//       res.status(500).send("Error creating recipe");
-//     }
-//   }
-// );
+      res.status(201).json(newRecipe);
+    } catch (error) {
+      res.status(500).send("Error creating recipe");
+    }
+  }
+);
 
 app.get("/", (req, res) => {
   res.send("hello from server");
