@@ -15,5 +15,10 @@
     "@types/node": "^22.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@clerk/clerk-sdk-node": "^5.0.20",
+    "@types/cors": "^2.8.17",
+    "cors": "^2.8.5"
   }
 }

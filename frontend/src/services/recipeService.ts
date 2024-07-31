@@ -2,8 +2,9 @@
 
 import { z } from "zod";
 import { SERVER_URL } from "../constants";
+import { makeRequest } from "../utils/makeRequest";
 
-const RecipeSchema = z.object({
+export const RecipeSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string(),
@@ -12,9 +13,9 @@ const RecipeSchema = z.object({
   userId: z.string(),
 });
 
-type Recipe = z.infer<typeof RecipeSchema>;
+export type Recipe = z.infer<typeof RecipeSchema>;
 
-type RecipeList = Recipe[];
+export type RecipeList = Recipe[];
 
 //function to grab all of the recipes
 export async function fetchRecipeList(): Promise<RecipeList> {
@@ -36,4 +37,23 @@ export async function fetchRecipeList(): Promise<RecipeList> {
   }
 }
 
-console.log(await fetchRecipeList());
+/**function that hits the /createrecipe/:id endpoint */
+export async function createNewRecipe(
+  name: string,
+  description: string,
+  token: string
+): Promise<Recipe> {
+  const newRecipe = await makeRequest<Recipe>({
+    endpoint: "/createrecipe",
+    method: "POST",
+    body: {
+      name: name,
+      description: description,
+    },
+    token,
+  });
+  if (!newRecipe) {
+    throw new Error("Failed to create new recipe");
+  }
+  return newRecipe;
+}
