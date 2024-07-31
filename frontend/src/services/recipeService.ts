@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { SERVER_URL } from "../constants";
+import { makeRequest } from "../utils/makeRequest";
 
 export const RecipeSchema = z.object({
   id: z.string(),
@@ -37,3 +38,12 @@ export async function fetchRecipeList(): Promise<RecipeList> {
 }
 
 console.log(await fetchRecipeList());
+
+//some function to create a new Recipe
+export async function createNewRecipe(
+  name: string,
+  description: string,
+  userId: string
+): Promise<Recipe> {
+  //write funciton that creates a new recipe with the prior inputs
+}
