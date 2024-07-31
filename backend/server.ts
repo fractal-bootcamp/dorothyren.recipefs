@@ -15,6 +15,7 @@ const PORT = 8000;
 
 //middleware function that parses incoming requests with URL-encoded payloads
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
 app.use(ClerkExpressRequireAuth());
@@ -59,7 +60,7 @@ app.post("/createuser", async (req, res) => {
   if (newUser) {
     res.status(201).json(newUser);
   } else {
-    res.status(500).send("Error creating user");
+    res.status(500).json({ message: "Error creating user" });
   }
 });
 
@@ -70,6 +71,7 @@ app.post(
   optionalUser,
   async (req, res) => {
     const { id } = req.params;
+    console.log("HELP", req.body);
     const { name, description } = req.body;
 
     try {
@@ -91,7 +93,8 @@ app.post(
 
       res.status(201).json(newRecipe);
     } catch (error) {
-      res.status(500).send("Error creating recipe");
+      console.error(error);
+      res.status(500).json({ message: "Error creating recipe" });
     }
   }
 );
