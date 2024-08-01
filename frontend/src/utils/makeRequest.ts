@@ -1,5 +1,7 @@
+import { useAuth } from "@clerk/clerk-react";
 import { SERVER_URL } from "../constants";
 import z from "zod";
+import { useState } from "react";
 
 type HTTPMethod = "GET" | "POST" | "PUT" | "DELETE";
 
@@ -51,4 +53,15 @@ export const makeRequest = async <T>({
     console.error("Request error:", error);
     throw error;
   }
+};
+
+/** Creating a custom hook */
+export const useTokenAndState = () => {
+  // we're using the clerk hook to grab the token
+  const { getToken } = useAuth();
+  const [state, setState] = useState();
+
+  const fruit = "banana";
+
+  return { getToken, state, setState };
 };

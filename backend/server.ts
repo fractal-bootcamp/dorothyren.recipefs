@@ -8,6 +8,8 @@ import {
   StrictAuthProp,
 } from "@clerk/clerk-sdk-node";
 import optionalUser from "./middleware/auth";
+import { S3 } from "@aws-sdk/client-s3";
+import multer from "multer";
 
 const prisma = new PrismaClient();
 const app = express();
@@ -17,6 +19,9 @@ const PORT = 8000;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
 app.use(cors());
 app.use(ClerkExpressRequireAuth());
 //this is the clerk middleware we wrote for auth
@@ -98,6 +103,14 @@ app.post(
     }
   }
 );
+
+app.post("/upload", upload.single("image"), (req, res) => {
+  debugger;
+  console.log(req.file);
+  const formData = req.body;
+  console.log("form data:", formData);
+  res.status(200).send("Form data received");
+});
 
 app.get("/", (req, res) => {
   res.send("hello from server");

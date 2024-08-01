@@ -49,6 +49,7 @@ export async function createNewRecipe(
     body: {
       name: name,
       description: description,
+      // image: image,
     },
     token,
   });

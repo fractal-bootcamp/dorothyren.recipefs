@@ -17,7 +17,6 @@ const optionalUser: RequestHandler = async (req, res, next) => {
 
   if (token) {
     try {
-      console.log("req.auth", req.auth);
       // Extract the Clerk user Id from the request's auth property
       const clerkId = req.auth.userId;
 
