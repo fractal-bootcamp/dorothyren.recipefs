@@ -6,14 +6,37 @@ import {
   ClerkExpressRequireAuth,
   RequireAuthProp,
   StrictAuthProp,
+  clerkClient,
 } from "@clerk/clerk-sdk-node";
 import optionalUser from "./middleware/auth";
 import { S3 } from "@aws-sdk/client-s3";
 import multer from "multer";
+import multerS3 from "multer-s3";
 
 const prisma = new PrismaClient();
 const app = express();
 const PORT = 8000;
+
+const s3 = new S3({
+  region: "us-east-2",
+  credentials: {
+    accessKeyId: process.env.ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.SECRET_ACCESS_KEY || "",
+  },
+});
+
+// const testUpload = multer({
+//   storage: multerS3({
+//     s3: s3,
+//     bucket: "dorothy-bucket-example",
+//     metadata: function (req, file, callback) {
+//       callback(null, { fieldName: file.fieldName });
+//     },
+//     key: function (req, file, callback) {
+//       callback(null, `${Date.now()}-${file.originalname}`);
+//     },
+//   }),
+// });
 
 //middleware function that parses incoming requests with URL-encoded payloads
 app.use(express.urlencoded({ extended: true }));
@@ -26,6 +49,13 @@ app.use(cors());
 app.use(ClerkExpressRequireAuth());
 //this is the clerk middleware we wrote for auth
 app.use(optionalUser);
+
+//testing route to S3
+app.get("/test", async (req, res) => {
+  const data = await s3.listBuckets();
+
+  res.send({ buckets: data });
+});
 
 //at /recipefeed, GET all recipes
 app.get("/recipefeed", async (req, res) => {
@@ -106,7 +136,7 @@ app.post(
 
 app.post("/upload", upload.single("image"), (req, res) => {
   debugger;
-  console.log(req.file);
+  console.log("file: ", req.file);
   const formData = req.body;
   console.log("form data:", formData);
   res.status(200).send("Form data received");
