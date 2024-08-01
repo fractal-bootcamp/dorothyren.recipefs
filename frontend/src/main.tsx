@@ -8,7 +8,6 @@ if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Publishable Key")
 }
 
-
 // Import the layouts
 import RootLayout from './layouts/root-layout'
 
@@ -25,8 +24,8 @@ const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { path: "/", element: <IndexPage /> },
-      { path: "/signin", element: <SignInPage /> },
-      { path: "/signup", element: <SignUpPage /> },
+      { path: "/sign-in", element: <SignInPage /> },
+      { path: "/sign-up", element: <SignUpPage /> },
       { path: "/recipefeed", element: <RecipeFeedPage /> },
       { path: "/createrecipe", element: <CreateRecipePage /> },
     ]

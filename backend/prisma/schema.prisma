@@ -26,9 +26,8 @@ model Recipe {
 
 model Users {
   id      String @id @default(cuid())
-  name    String
   email   String @unique
-  clerkId String
+  clerkId String @unique
 
   // metadata
   createdAt DateTime @default(now())
