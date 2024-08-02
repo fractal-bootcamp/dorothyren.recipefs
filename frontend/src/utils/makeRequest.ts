@@ -61,7 +61,5 @@ export const useTokenAndState = () => {
   const { getToken } = useAuth();
   const [state, setState] = useState();
 
-  const fruit = "banana";
-
   return { getToken, state, setState };
 };

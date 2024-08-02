@@ -56,5 +56,6 @@ export async function createNewRecipe(
   if (!newRecipe) {
     throw new Error("Failed to create new recipe");
   }
+  console.log("new recipe is: ", newRecipe);
   return newRecipe;
 }
