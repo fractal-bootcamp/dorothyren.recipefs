@@ -46,9 +46,12 @@ export function RecipeBuilder() {
             return;
         }
         try {
+            // Create a new recipe with the provided name and description, hits /createrecipe endpoint
             const newRecipe = await createNewRecipe(name, description, token)
             console.log("new recipe saved as: ", newRecipe.id)
+            // If an image file is selected, upload it via sending a POST request, hits /upload endpoint
             if (imageFile) {
+                console.log("attempting to upload file: ", imageFile.name, imageFile.size)
                 const uploadedFile = uploadFile(imageFile, newRecipe.id, token)
                 console.log(uploadedFile)
             }

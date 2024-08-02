@@ -34,3 +34,12 @@ model Users {
   updatedAt DateTime @updatedAt
   Recipe    Recipe[]
 }
+
+model PictureInS3 {
+  id       String @id @default(cuid())
+  name     String
+  bucket   String
+  key      String
+  size     Int
+  mimetype String
+}

@@ -1,5 +1,5 @@
 import cookieParser from "cookie-parser";
-import express from "express";
+import express, { Request, Response } from "express";
 import { Prisma, PrismaClient } from "@prisma/client";
 import cors from "cors";
 import {
@@ -9,34 +9,44 @@ import {
   clerkClient,
 } from "@clerk/clerk-sdk-node";
 import optionalUser from "./middleware/auth";
-import { S3 } from "@aws-sdk/client-s3";
-import multer from "multer";
+import { S3, _Error } from "@aws-sdk/client-s3";
+import multer, { Multer } from "multer";
 import multerS3 from "multer-s3";
+import { addNewFileInStorage } from "./utils/dbFunctions";
 
-const prisma = new PrismaClient();
+interface MulterRequest extends Request {
+  file?: any;
+}
+
+export const prisma = new PrismaClient();
 const app = express();
 const PORT = 8000;
+const bucketName = "dorothy-bucket-example";
+const region = "us-east-2";
 
 const s3 = new S3({
-  region: "us-east-2",
+  region: region,
   credentials: {
     accessKeyId: process.env.ACCESS_KEY_ID || "",
     secretAccessKey: process.env.SECRET_ACCESS_KEY || "",
   },
 });
 
-// const testUpload = multer({
-//   storage: multerS3({
-//     s3: s3,
-//     bucket: "dorothy-bucket-example",
-//     metadata: function (req, file, callback) {
-//       callback(null, { fieldName: file.fieldName });
-//     },
-//     key: function (req, file, callback) {
-//       callback(null, `${Date.now()}-${file.originalname}`);
-//     },
-//   }),
-// });
+const testUpload = multer({
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
+  storage: multerS3({
+    s3: s3,
+    bucket: bucketName,
+    metadata: function (req, file, callback) {
+      callback(null, { fieldName: file.fieldName });
+    },
+    key: function (req, file, callback) {
+      callback(null, `${Date.now()}-${file.originalname}`);
+    },
+  }),
+});
 
 //middleware function that parses incoming requests with URL-encoded payloads
 app.use(express.urlencoded({ extended: true }));
@@ -52,9 +62,12 @@ app.use(optionalUser);
 
 //testing route to S3
 app.get("/test", async (req, res) => {
+  console.log("GET endpoint called at /test");
   const data = await s3.listBuckets();
-
-  res.send({ buckets: data });
+  if (data) {
+    console.log("Response from AWS successfully recorded.");
+  }
+  console.log("data object is: ", data);
 });
 
 //at /recipefeed, GET all recipes
@@ -72,32 +85,15 @@ app.get("/recipefeed", async (req, res) => {
 });
 
 //POST route at /createuser, to create a user
-app.post("/createuser", async (req, res) => {
-  const newUser = req.user;
-  // if (!email || !clerkId) {
-  //   return res.status(400).json({ error: "User information is missing" });
-  // }
-  // try {
-  //   const existingUser = await prisma.users.findUnique({
-  //     where: { clerkId: clerkId },
-  //   });
-  //   if (existingUser) {
-  //     return res.status(409).json({ error: "User already exists" });
-  //   }
-  //   // Create a new user in the database
-  //   const newUser = await prisma.users.create({
-  //     data: {
-  //       email: email,
-  //       clerkId: clerkId,
-  //     },
-  //   });
+// app.post("/createuser", async (req, res) => {
+//   const newUser = req.user;
 
-  if (newUser) {
-    res.status(201).json(newUser);
-  } else {
-    res.status(500).json({ message: "Error creating user" });
-  }
-});
+//   if (newUser) {
+//     res.status(201).json(newUser);
+//   } else {
+//     res.status(500).json({ message: "Error creating user" });
+//   }
+// });
 
 //POST route to create a new recipe
 app.post(
@@ -111,16 +107,16 @@ app.post(
 
     try {
       // Check if the user is authenticated
-      if (!req.user) {
-        return res.status(401).send("Unauthorized");
-      }
+      // if (!req || !req.user) {
+      //   return res.status(401).send("Unauthorized");
+      // }
 
       // Create a new recipe
       const newRecipe = await prisma.recipe.create({
         data: {
           name,
           description,
-          userId: req.user.id,
+          userId: "123",
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -134,13 +130,28 @@ app.post(
   }
 );
 
-app.post("/upload", upload.single("image"), (req, res) => {
-  debugger;
-  console.log("file: ", req.file);
-  const formData = req.body;
-  console.log("form data:", formData);
-  res.status(200).send("Form data received");
-});
+// app.post("/upload", upload.single("image"), (req, res) => {
+//   console.log("file: ", req.file);
+//   const formData = req.body;
+//   console.log("form data:", formData);
+//   res.status(200).send("Form data received");
+// });
+
+app.post(
+  "/upload",
+  testUpload.single("image"),
+  async (req: MulterRequest, res: Response) => {
+    if (req.file) {
+      console.log("attempting to send to db");
+      const newItem = await addNewFileInStorage(
+        req.file,
+        "insert recipe id here"
+      );
+    } else {
+      console.log("unsuccessful upload");
+    }
+  }
+);
 
 app.get("/", (req, res) => {
   res.send("hello from server");
