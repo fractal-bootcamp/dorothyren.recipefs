@@ -3,7 +3,7 @@
 import { z } from "zod";
 import { SERVER_URL } from "../constants";
 
-const RecipeSchema = z.object({
+export const RecipeSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string(),
@@ -12,9 +12,9 @@ const RecipeSchema = z.object({
   userId: z.string(),
 });
 
-type Recipe = z.infer<typeof RecipeSchema>;
+export type Recipe = z.infer<typeof RecipeSchema>;
 
-type RecipeList = Recipe[];
+export type RecipeList = Recipe[];
 
 //function to grab all of the recipes
 export async function fetchRecipeList(): Promise<RecipeList> {

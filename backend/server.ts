@@ -1,6 +1,7 @@
 import cookieParser from "cookie-parser";
 import express from "express";
 import { Prisma, PrismaClient } from "@prisma/client";
+import cors from "cors";
 
 const prisma = new PrismaClient();
 const app = express();
@@ -9,6 +10,7 @@ const PORT = 8000;
 //middleware function that parses incoming requests with URL-encoded payloads
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(cors());
 
 //at /recipefeed, GET all art
 app.get("/recipefeed", async (req, res) => {
