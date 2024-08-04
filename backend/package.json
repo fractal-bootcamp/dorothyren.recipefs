@@ -12,8 +12,16 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/multer": "^1.4.11",
     "@types/node": "^22.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.621.0",
+    "@clerk/clerk-sdk-node": "^5.0.20",
+    "@types/cors": "^2.8.17",
+    "cors": "^2.8.5",
+    "multer": "^1.4.5-lts.1"
   }
 }
